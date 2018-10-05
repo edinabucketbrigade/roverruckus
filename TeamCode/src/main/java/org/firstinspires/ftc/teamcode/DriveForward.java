@@ -22,8 +22,9 @@ public class DriveForward extends LinearOpMode {
 
 
     public void driveDirection(int forwardOrBackward) {
-        hw.leftDrive.setPower(jewelSpeed * forwardOrBackward);
-        hw.rightDrive.setPower(jewelSpeed * forwardOrBackward);
+  /*      hw.leftDrive.setPower(jewelSpeed * forwardOrBackward);
+        hw.rightDrive.setPower(jewelSpeed * forwardOrBackward); */
+        telemetry.addData("Status", "In drive direction");
     }
 
     int colorSeen;
