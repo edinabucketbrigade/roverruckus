@@ -23,7 +23,7 @@ public class HardwareBucketBrigade {
     public void init(HardwareMap hardwareMap) {
 
         leftDrive = hardwareMap.get(DcMotor.class, "leftWheel");
-        rightDrive = hardwareMap.get(DcMotor.class, "rightFront");
+        rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
         strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
         upDown = hardwareMap.get(DcMotor.class, "upDown");
 //        colorSensor = hardwareMap.get(ColorSensor.class, "color");

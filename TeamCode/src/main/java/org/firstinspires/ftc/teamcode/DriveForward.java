@@ -30,7 +30,7 @@ public class DriveForward extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        int driveDirection = teamColor * colorSeen;
+        int driveDirection = teamColor;
         driveDirection(driveDirection);
 
 
