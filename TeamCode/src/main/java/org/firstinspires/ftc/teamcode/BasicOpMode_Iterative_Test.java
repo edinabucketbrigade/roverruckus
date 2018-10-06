@@ -51,13 +51,15 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 @TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
-@Disabled
+//@Disabled
 public class BasicOpMode_Iterative_Test extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
+    private DcMotor strafeWheel = null;
+    private DcMotor upDown = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -69,8 +71,10 @@ public class BasicOpMode_Iterative_Test extends OpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        leftDrive  = hardwareMap.get(DcMotor.class, "leftWheel");
+        rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
+        strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
+        upDown = hardwareMap.get(DcMotor.class, "upDown");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -114,6 +118,8 @@ public class BasicOpMode_Iterative_Test extends OpMode
         double turn  =  gamepad1.right_stick_x;
         leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
         rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+
+        
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
