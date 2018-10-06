@@ -108,6 +108,8 @@ public class BasicOpMode_Iterative_Test extends OpMode
         // Setup a variable for each drive wheel to save power level for telemetry
         double leftPower;
         double rightPower;
+        double strafePower;
+        double upDownPower;
 
         // Choose to drive using either Tank Mode, or POV Mode
         // Comment out the method that's not used.  The default below is POV.
@@ -116,10 +118,35 @@ public class BasicOpMode_Iterative_Test extends OpMode
         // - This uses basic math to combine motions and is easier to drive straight.
         double drive = -gamepad1.left_stick_y;
         double turn  =  gamepad1.right_stick_x;
+        double leftRight = 0;
+        double upDownFunk = 0;
+
+        if (gamepad1.dpad_right){
+            leftRight = 1.0;
+        }
+
+        if (gamepad1.dpad_left) {
+            leftRight = -1.0;
+        }
+
+
+
+        if (gamepad1.dpad_up) {
+            upDownFunk = 1.0;
+        }
+
+        if (gamepad1.dpad_down) {
+            upDownFunk = -1.0;
+        }
+
+
+
+
         leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
         rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+        strafePower = leftRight;
+        upDownPower = upDownFunk;
 
-        
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -129,6 +156,8 @@ public class BasicOpMode_Iterative_Test extends OpMode
         // Send calculated power to wheels
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
+        strafeWheel.setPower(strafePower);
+        upDown.setPower(upDownPower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
