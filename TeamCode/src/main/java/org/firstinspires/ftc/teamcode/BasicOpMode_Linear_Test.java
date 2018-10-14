@@ -54,25 +54,68 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class BasicOpMode_Linear_Test extends LinearOpMode {
 
+    // Declare OpMode members.
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor leftDrive = null;
+    private DcMotor rightDrive = null;
+    private DcMotor strafeWheel = null;
+    private DcMotor upDown = null;
+
+    // constants for autonomous
+    final int TIME_TO_DROP = 750; //ms
+
 
     @Override
+
     public void runOpMode() {
+
+        // Initialize the hardware variables. Note that the strings used here as parameters
+        // to 'get' must correspond to the names assigned during the robot configuration
+        // step (using the FTC Robot Controller app on the phone).
+        leftDrive  = hardwareMap.get(DcMotor.class, "leftWheel");
+        rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
+        strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
+        upDown = hardwareMap.get(DcMotor.class, "upDown");
+
+        // Most robots need the motor on one side to be reversed to drive forward
+        // Reverse the motor that runs backwards when connected directly to the battery
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        upDown.setDirection(DcMotor.Direction.REVERSE);
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
+        telemetry.update();
 
-        //Detach from hook
-        telemetry.addData("Auto step", "Detach from bracket");
+        //Detach from bracket
+        telemetry.addData("Auto step:", "Detach from bracket");
+        telemetry.update();
 
         //Identify VuMark
-        telemetry.addData("Auto step", "Identify Vumark");
+        telemetry.addData("Auto step:", "Identify VuMark");
+        telemetry.update();
 
         //Align Robot
-        telemetry.addData("Auto step", "Align Robot");
+        telemetry.addData("Auto step:", "Align Robot");
+        telemetry.update();
 
-        //
+        //Drive to minerals
+        telemetry.addData("Auto step:", "Drive to minerals");
+        telemetry.update();
+
+        //Sample minerals
+        telemetry.addData("Auto step:", "Sample minerals");
+        telemetry.update();
+
+        //Knock gold off
+        telemetry.addData("Auto step:", "Knock off gold");
+        telemetry.update();
+
+        //Drive to Depot
+        telemetry.addData("Auto step:", "Drive into crater");
         }
     }
 
