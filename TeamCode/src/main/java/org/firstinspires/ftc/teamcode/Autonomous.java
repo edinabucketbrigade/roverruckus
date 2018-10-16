@@ -29,12 +29,16 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 
 /**
@@ -52,7 +56,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Basic: Linear OpMode", group="Linear Opmode")
 //@Disabled
-public class BasicOpMode_Linear_Test extends LinearOpMode {
+public class Autonomous extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -60,6 +64,9 @@ public class BasicOpMode_Linear_Test extends LinearOpMode {
     private DcMotor rightDrive = null;
     private DcMotor strafeWheel = null;
     private DcMotor upDown = null;
+
+    private BNO055IMU imu;
+
 
     // constants for autonomous
     final int TIME_TO_DROP = 750; //ms
@@ -83,6 +90,9 @@ public class BasicOpMode_Linear_Test extends LinearOpMode {
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         upDown.setDirection(DcMotor.Direction.REVERSE);
 
+        InitCamera();
+        InitGyro();
+        
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -116,6 +126,41 @@ public class BasicOpMode_Linear_Test extends LinearOpMode {
 
         //Drive to Depot
         telemetry.addData("Auto step:", "Drive into crater");
-        }
     }
+
+    private void InitCamera () {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+        parameters.vuforiaLicenseKey = "Af0zbuj/////AAAAmXrKvO2DQ02rqj1ToEd4GiNXW/eJaJfXEGRXIRbAfRRRoWBH4IWJARJvS/tO92mlab8S+9NAnsc2DCM3EIDgeHCgdlV+W2xdERpD0g/bDqY42zskjMnC+A9RebotqH3FZxBJtuW+icRb4I3E0s4CMOTWmpHvsHsIYuEsh4j87q/PjZxP2Ft99IVNNrRdVtGTTKh7nMShfRC0KcSn3pjy48FOj+aTuftmG1R/nCLd57vyq37VhRUY07JTYQvXgy9MNQRlrEpV+a1fLJPqDCuVj1364q0H6Pvk0jdopLvx3w9emhYuqJSPNVXtO7vsccL2TQj84lOBglWB2AnuH0BkXNBoaCBFFxLwM/VPq9B1JXwH";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        //this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+    }
+
+    private void InitGyro () {
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        imu.initialize(parameters);
+
+        telemetry.addData("Mode", "calibrating...");
+        telemetry.update();
+
+        // make sure the imu gyro is calibrated before continuing.
+        while (!isStopRequested() && !imu.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+        }
+
+    }
+}
 
