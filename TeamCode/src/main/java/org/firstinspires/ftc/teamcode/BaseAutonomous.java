@@ -86,6 +86,7 @@ public class BaseAutonomous extends LinearOpMode {
 
     private BNO055IMU imu;
     private VuforiaLocalizer vuforia;
+    private VuforiaLocalizer.Parameters parameters;
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
     // We will define some constants and conversions here
@@ -124,6 +125,10 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setDirection(DcMotor.Direction.REVERSE);
 
         InitCamera();
+        while (opModeIsActive()) {
+            GetLocation();
+        }
+
         InitGyro();
         
         telemetry.addData("Status", "Initialized");
@@ -166,13 +171,14 @@ public class BaseAutonomous extends LinearOpMode {
 
     private void InitCamera () {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-
-
+        this.parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = "Af0zbuj/////AAAAmXrKvO2DQ02rqj1ToEd4GiNXW/eJaJfXEGRXIRbAfRRRoWBH4IWJARJvS/tO92mlab8S+9NAnsc2DCM3EIDgeHCgdlV+W2xdERpD0g/bDqY42zskjMnC+A9RebotqH3FZxBJtuW+icRb4I3E0s4CMOTWmpHvsHsIYuEsh4j87q/PjZxP2Ft99IVNNrRdVtGTTKh7nMShfRC0KcSn3pjy48FOj+aTuftmG1R/nCLd57vyq37VhRUY07JTYQvXgy9MNQRlrEpV+a1fLJPqDCuVj1364q0H6Pvk0jdopLvx3w9emhYuqJSPNVXtO7vsccL2TQj84lOBglWB2AnuH0BkXNBoaCBFFxLwM/VPq9B1JXwH";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+    }
+
+    private void GetLocation() {
+
         // Load the data sets that for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
         VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
@@ -290,7 +296,7 @@ public class BaseAutonomous extends LinearOpMode {
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : allTrackables)
         {
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, this.parameters.cameraDirection);
         }
 
         /** Wait for the game to begin */
@@ -300,7 +306,7 @@ public class BaseAutonomous extends LinearOpMode {
 
         /** Start tracking the data sets we care about. */
         targetsRoverRuckus.activate();
-        while (opModeIsActive()) {
+        if (opModeIsActive()) {
 
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
