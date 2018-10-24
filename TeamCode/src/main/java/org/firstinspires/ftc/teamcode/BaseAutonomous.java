@@ -125,25 +125,28 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setDirection(DcMotor.Direction.REVERSE);
 
         InitCamera();
-        while (opModeIsActive()) {
-            GetLocation();
-        }
 
-        InitGyro();
+
+       // InitGyro();
         
         telemetry.addData("Status", "Initialized");
 
 
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
-
+        upDown.setPower(0.5);
+        sleep(800);
+        upDown.setPower(0.0);
 
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
-
+        strafeWheel.setPower(1.0);
+        sleep(300);
+        strafeWheel.setPower(0.0);
 
         //Identify VuMark
         telemetry.addData("Auto step:", "Identify VuMark");
+        GetLocation();
 
 
         //Align Robot
@@ -306,7 +309,7 @@ public class BaseAutonomous extends LinearOpMode {
 
         /** Start tracking the data sets we care about. */
         targetsRoverRuckus.activate();
-        if (opModeIsActive()) {
+        while (opModeIsActive()) {
 
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
@@ -335,6 +338,7 @@ public class BaseAutonomous extends LinearOpMode {
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
                 telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                break;
             }
             else {
                 telemetry.addData("Visible Target", "none");
