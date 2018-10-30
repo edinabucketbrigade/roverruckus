@@ -33,7 +33,9 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -83,6 +85,7 @@ public class BaseAutonomous extends LinearOpMode {
     private DcMotor rightDrive = null;
     private DcMotor strafeWheel = null;
     private DcMotor upDown = null;
+    private CRServo markerServo = null;
 
     private BNO055IMU imu;
     private VuforiaLocalizer vuforia;
@@ -102,8 +105,6 @@ public class BaseAutonomous extends LinearOpMode {
     private boolean targetVisible = false;
 
 
-    // constants for autonomous
-    final int TIME_TO_DROP = 750; //ms
 
 
     @Override
@@ -117,12 +118,14 @@ public class BaseAutonomous extends LinearOpMode {
         rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
         strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
         upDown = hardwareMap.get(DcMotor.class, "upDown");
+        markerServo = hardwareMap.get(CRServo.class, "markerServo");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         upDown.setDirection(DcMotor.Direction.REVERSE);
+        markerServo.setDirection(CRServo.Direction.FORWARD);
 
         InitCamera();
 
@@ -134,42 +137,80 @@ public class BaseAutonomous extends LinearOpMode {
 
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
-        upDown.setPower(0.5);
-        sleep(800);
+        upDown.setPower(0.35);
+        sleep(2100);
         upDown.setPower(0.0);
-
+        sleep(750);
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
         strafeWheel.setPower(1.0);
+        sleep(750);
+        strafeWheel.setPower(0.0);
+        leftDrive.setPower(-1.0);
+        rightDrive.setPower(-1.0);
+        sleep(300);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+        sleep(500);
+        strafeWheel.setPower(-1.0);
         sleep(300);
         strafeWheel.setPower(0.0);
-
         //Identify VuMark
         telemetry.addData("Auto step:", "Identify VuMark");
-        GetLocation();
 
+        // TODO The output of GetLocation needs to be the angle and the distance
+        //getLocation();
 
         //Align Robot
         telemetry.addData("Auto step:", "Align Robot");
-
+       // rotateRobot(45);
+        //getLocation();
 
         //Drive to minerals
         telemetry.addData("Auto step:", "Drive to minerals");
-
+        leftDrive.setPower(1.0);
+        rightDrive.setPower(1.0);
+        sleep(600);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
 
         //Sample minerals
         telemetry.addData("Auto step:", "Sample minerals");
-
+        //TODO write code to color test minerals
 
         //Knock gold off
         telemetry.addData("Auto step:", "Knock off gold");
+        //TODO write code to knock off gold
 
+        //Drive to Depot Straight
+        telemetry.addData("Auto step:", "Drive to Depot");
+        leftDrive.setPower(1.0);
+        rightDrive.setPower(1.0);
+        sleep(500);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
 
-        //Drive to Depot
+        //Drive to Depot Crater
+        telemetry.addData("Auto step:", "Drive to Depot");
+        leftDrive.setPower(1.0);
+        rightDrive.setPower(1.0);
+        sleep(500);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+
+        //Drop Marker
+        telemetry.addData("Auto step:", "Drop Marker");
+        markerServo.setPower(0.5);
+        sleep(500);
+        markerServo.setPower(0.0);
+        markerServo.setPower(-0.5);
+        sleep(500);
+        markerServo.setPower(0.0);
+
+        //Drive into crater
         telemetry.addData("Auto step:", "Drive into crater");
 
         telemetry.update();
-        sleep(5000);
     }
 
     private void InitCamera () {
@@ -180,7 +221,7 @@ public class BaseAutonomous extends LinearOpMode {
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
     }
 
-    private void GetLocation() {
+    private void getLocation() {
 
         // Load the data sets that for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
@@ -345,6 +386,20 @@ public class BaseAutonomous extends LinearOpMode {
             }
             telemetry.update();
         }
+    }
+
+    private void rotateRobot(int degrees){
+        double direction = 1.0;
+        double power = 0.25;
+        int secPerDegree = 50;
+        if (degrees > 0){
+            direction = -1.0;
+        }
+        leftDrive.setPower(direction*power);
+        rightDrive.setPower(direction*power*-1.0);
+        sleep(secPerDegree*degrees);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
     }
 
     private void InitGyro () {
