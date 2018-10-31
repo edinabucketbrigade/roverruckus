@@ -29,6 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
+import com.edinaftcrobotics.vision.camera.Camera;
+import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -109,7 +112,7 @@ public class BaseAutonomous extends LinearOpMode {
 
     @Override
 
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -168,44 +171,66 @@ public class BaseAutonomous extends LinearOpMode {
 
         //Drive to minerals
         telemetry.addData("Auto step:", "Drive to minerals");
-        leftDrive.setPower(1.0);
-        rightDrive.setPower(1.0);
-        sleep(600);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
+//        leftDrive.setPower(1.0);
+//        rightDrive.setPower(1.0);
+//        sleep(600);
+//        leftDrive.setPower(0.0);
+//        rightDrive.setPower(0.0);
 
         //Sample minerals
         telemetry.addData("Auto step:", "Sample minerals");
         //TODO write code to color test minerals
 
+        // Assuming we are aligned to the minerals, we should start strafing left or right until we are aligned
+        // position of the gold mineral will tell us what overall position the gold position is in.
+
+        Camera camera = new BackPhoneCamera();
+        camera.activate();
+        GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
+
+
+        while (opModeIsActive()) {
+            if (mineralTracker.getGoldMineralLocation()) {
+                telemetry.addData("Location: ", "%f %f", mineralTracker.getXPosition(), mineralTracker.getYPosition());
+                telemetry.addData("Aligned: ", mineralTracker.aligned());
+            } else {
+                telemetry.addData("Object Not Found", "");
+            }
+            telemetry.update();
+        }
+
+
         //Knock gold off
         telemetry.addData("Auto step:", "Knock off gold");
         //TODO write code to knock off gold
 
+
+
+
         //Drive to Depot Straight
         telemetry.addData("Auto step:", "Drive to Depot");
-        leftDrive.setPower(1.0);
-        rightDrive.setPower(1.0);
-        sleep(500);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
+//        leftDrive.setPower(1.0);
+//        rightDrive.setPower(1.0);
+//        sleep(500);
+//        leftDrive.setPower(0.0);
+//        rightDrive.setPower(0.0);
 
         //Drive to Depot Crater
         telemetry.addData("Auto step:", "Drive to Depot");
-        leftDrive.setPower(1.0);
-        rightDrive.setPower(1.0);
-        sleep(500);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
+//        leftDrive.setPower(1.0);
+//        rightDrive.setPower(1.0);
+//        sleep(500);
+//        leftDrive.setPower(0.0);
+//        rightDrive.setPower(0.0);
 
         //Drop Marker
         telemetry.addData("Auto step:", "Drop Marker");
-        markerServo.setPower(0.5);
-        sleep(500);
-        markerServo.setPower(0.0);
-        markerServo.setPower(-0.5);
-        sleep(500);
-        markerServo.setPower(0.0);
+//        markerServo.setPower(0.5);
+//        sleep(500);
+//        markerServo.setPower(0.0);
+//        markerServo.setPower(-0.5);
+//        sleep(500);
+//        markerServo.setPower(0.0);
 
         //Drive into crater
         telemetry.addData("Auto step:", "Drive into crater");
