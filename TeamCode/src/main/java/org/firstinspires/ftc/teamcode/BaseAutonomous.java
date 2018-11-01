@@ -130,7 +130,7 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setDirection(DcMotor.Direction.REVERSE);
         markerServo.setDirection(CRServo.Direction.FORWARD);
 
-        InitCamera();
+        //InitCamera();
 
 
        // InitGyro();
@@ -147,7 +147,7 @@ public class BaseAutonomous extends LinearOpMode {
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
         strafeWheel.setPower(1.0);
-        sleep(750);
+        sleep(300);
         strafeWheel.setPower(0.0);
         leftDrive.setPower(-1.0);
         rightDrive.setPower(-1.0);
