@@ -151,10 +151,10 @@ public class BaseAutonomous extends LinearOpMode {
         strafeWheel.setPower(0.0);
         leftDrive.setPower(-1.0);
         rightDrive.setPower(-1.0);
-        sleep(300);
+        sleep(100);
         leftDrive.setPower(0.0);
         rightDrive.setPower(0.0);
-        sleep(500);
+        sleep(250);
         strafeWheel.setPower(-1.0);
         sleep(300);
         strafeWheel.setPower(0.0);
