@@ -33,6 +33,7 @@ import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -78,7 +79,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: Linear OpMode", group="Linear Opmode")
+@Autonomous(name="BaseAutonomous", group="Linear Opmode")
 //@Disabled
 public class BaseAutonomous extends LinearOpMode {
 
@@ -107,12 +108,18 @@ public class BaseAutonomous extends LinearOpMode {
     private OpenGLMatrix lastLocation = null;
     private boolean targetVisible = false;
 
-
-
+    static {
+        System.loadLibrary("opencv_java3");
+    }
 
     @Override
-
     public void runOpMode() throws InterruptedException {
+
+
+        Camera camera = new BackPhoneCamera();
+        camera.activate();
+        GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
+
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -136,7 +143,7 @@ public class BaseAutonomous extends LinearOpMode {
        // InitGyro();
         
         telemetry.addData("Status", "Initialized");
-
+        waitForStart();
 
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
@@ -184,19 +191,24 @@ public class BaseAutonomous extends LinearOpMode {
         // Assuming we are aligned to the minerals, we should start strafing left or right until we are aligned
         // position of the gold mineral will tell us what overall position the gold position is in.
 
-        Camera camera = new BackPhoneCamera();
-        camera.activate();
-        GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
+
+
 
 
         while (opModeIsActive()) {
-            if (mineralTracker.getGoldMineralLocation()) {
-                telemetry.addData("Location: ", "%f %f", mineralTracker.getXPosition(), mineralTracker.getYPosition());
-                telemetry.addData("Aligned: ", mineralTracker.aligned());
-            } else {
-                telemetry.addData("Object Not Found", "");
+            try {
+                if (mineralTracker.getGoldMineralLocation()) {
+                    telemetry.addData("Location: ", "%f %f", mineralTracker.getXPosition(), mineralTracker.getYPosition());
+                    telemetry.addData("Aligned: ", mineralTracker.aligned());
+                } else {
+                    telemetry.addData("Object Not Found", "");
+                }
+                //sleep(1000);
+                telemetry.update();
+            } catch (InterruptedException e) {
+                telemetry.addData("interrupted for some reason...", "");
+                telemetry.update();
             }
-            telemetry.update();
         }
 
 
@@ -237,6 +249,7 @@ public class BaseAutonomous extends LinearOpMode {
 
         telemetry.update();
     }
+
 
     private void InitCamera () {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

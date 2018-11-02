@@ -144,8 +144,8 @@ public class BaseTeleOp extends OpMode
 
 
 
-        leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-        rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+        leftPower    = Range.clip(drive + turn, 1.0, -1.0) ;
+        rightPower   = Range.clip(drive - turn, 1.0, -1.0) ;
         strafePower = leftRight;
         upDownPower = upDownFunk;
 
