@@ -83,6 +83,14 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 //@Disabled
 public class BaseAutonomous extends LinearOpMode {
 
+    // basic navigation constants
+    private double RIGHT = 1.0;
+    private double LEFT = -1.0;
+    private double FORWARD = -1.0;
+    private double BACKWARD = 1.0;
+    private double FAST = 1.0;
+    private double SLOW = 0.5;
+
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
@@ -148,23 +156,30 @@ public class BaseAutonomous extends LinearOpMode {
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
         upDown.setPower(0.35);
-        sleep(2100);
+        sleep(2500);
         upDown.setPower(0.0);
         sleep(750);
+
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
-        strafeWheel.setPower(1.0);
-        sleep(300);
+        strafeWheel.setPower(RIGHT*SLOW);
+        sleep(500);
         strafeWheel.setPower(0.0);
-        leftDrive.setPower(-1.0);
-        rightDrive.setPower(-1.0);
-        sleep(100);
+
+
+        leftDrive.setPower(FORWARD*SLOW);
+        rightDrive.setPower(FORWARD*SLOW);
+        sleep(400);
         leftDrive.setPower(0.0);
         rightDrive.setPower(0.0);
         sleep(250);
-        strafeWheel.setPower(-1.0);
-        sleep(300);
+
+
+        strafeWheel.setPower(LEFT*SLOW);
+        sleep(500);
         strafeWheel.setPower(0.0);
+
+
         //Identify VuMark
         telemetry.addData("Auto step:", "Identify VuMark");
 
@@ -192,18 +207,65 @@ public class BaseAutonomous extends LinearOpMode {
         // position of the gold mineral will tell us what overall position the gold position is in.
 
 
+        // we need to scan for gold at this point
+        // possible outcomes from scan are?
+            // no object found
+                // what do we do?
+                    // strafe left slowly
+                    // recheck for gold
+                    // if we don't find, then strafe right
+
+            // detected
+                // x, y
+                // x == 300-350 ALIGNED
+                    // if less than 330 go right
+                    // if more than 330 go left
 
 
 
-        while (opModeIsActive()) {
+                // x == 400+ ON THE RIGHT
+                // x < 100 TO THE LEFT
+
+        boolean MINERAL_ALIGNED = false;
+        int ALIGNED_VALUE = 330;
+
+        int NOT_FOUND_COUNT = 0;
+        double search_direction = RIGHT;
+
+        while (MINERAL_ALIGNED == false) {
             try {
                 if (mineralTracker.getGoldMineralLocation()) {
-                    telemetry.addData("Location: ", "%f %f", mineralTracker.getXPosition(), mineralTracker.getYPosition());
                     telemetry.addData("Aligned: ", mineralTracker.aligned());
+                    MINERAL_ALIGNED = mineralTracker.aligned();
+
+                    telemetry.addData("Location: ", "%f %f", mineralTracker.getXPosition(), mineralTracker.getYPosition());
+                    if (MINERAL_ALIGNED == false) {
+                        if(mineralTracker.getXPosition() > ALIGNED_VALUE) {
+                            strafeWheel.setPower(RIGHT*SLOW);
+                            sleep(100);
+                            strafeWheel.setPower(0);
+
+                        } else {
+                            strafeWheel.setPower(LEFT*SLOW);
+                            sleep(100);
+                            strafeWheel.setPower(0);
+                        }
+                    }
+
                 } else {
+
                     telemetry.addData("Object Not Found", "");
+                    strafeWheel.setPower(search_direction*SLOW);
+                    sleep(100);
+                    strafeWheel.setPower(0);
+                    NOT_FOUND_COUNT++;
+                    if (NOT_FOUND_COUNT > 5) {
+                        search_direction = search_direction * -1.0;
+                        NOT_FOUND_COUNT = 0;
+                    }
                 }
-                //sleep(1000);
+
+                sleep(100);
                 telemetry.update();
             } catch (InterruptedException e) {
                 telemetry.addData("interrupted for some reason...", "");
@@ -212,10 +274,15 @@ public class BaseAutonomous extends LinearOpMode {
         }
 
 
+
         //Knock gold off
         telemetry.addData("Auto step:", "Knock off gold");
         //TODO write code to knock off gold
-
+        leftDrive.setPower(FORWARD * FAST);
+        rightDrive.setPower(FORWARD * FAST);
+        sleep(1000);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
 
 
 
