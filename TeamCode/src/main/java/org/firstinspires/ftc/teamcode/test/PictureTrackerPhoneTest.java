@@ -88,6 +88,42 @@ public class PictureTrackerPhoneTest extends LinearOpMode {
         System.loadLibrary("opencv_java3");
     }
 
+
+//    @Override public void runOpMode2() throws InterruptedException {
+//        ElapsedTime stopwatch = new ElapsedTime();
+//        Camera camera = new BackPhoneCamera();
+//
+//        camera.activate();
+//
+//        PictureTracker pictureTracker = null;
+//        pictureTracker = new PictureTracker(camera, 110, 200, 0);
+//
+//        pictureTracker.startTracking();
+//        waitForStart();
+//
+//        stopwatch.reset();
+//
+//        /** Start tracking the data sets we care about. */
+//        while (opModeIsActive()) {
+//            Triple trackableObject = pictureTracker.getTrackableObject(telemetry);
+//
+//            if (trackableObject != null) {
+//                telemetry.addData("Visible Target", trackableObject.PictureName);
+//                telemetry.addData("Pos (in) ", "{X, Y, Z} = %.1f, %.1f, %.1f",
+//                        trackableObject.Point.x, trackableObject.Point.y, trackableObject.Point.z);
+//                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f}", trackableObject.Orientation.firstAngle,
+//                        trackableObject.Orientation.secondAngle, trackableObject.Orientation.thirdAngle);
+//            } else {
+//                telemetry.addData("Picture", "not found");
+//            }
+//            telemetry.update();
+//            idle();
+//        }
+//
+//        pictureTracker.stopTracking();
+//        camera.deactivate();
+//    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         ElapsedTime stopwatch = new ElapsedTime();
@@ -96,23 +132,48 @@ public class PictureTrackerPhoneTest extends LinearOpMode {
         camera.activate();
         PictureTracker pictureTracker = new PictureTracker(camera,0,0,0);
 
-        waitForStart();
+        pictureTracker.startTracking();
 
+        waitForStart();
         stopwatch.reset();
 
-
+        String desiredPictureName = "Blue-Rover";
 
         /** Start tracking the data sets we care about. */
         while (opModeIsActive()) {
-            if (true) {
-                Triple location = pictureTracker.getTrackableObject(telemetry);
-//                telemetry.addData("Location: ", "%f %f", location.Orientation.getXPosition(), mineralTracker.getYPosition());
-//                telemetry.addData("Aligned: ", mineralTracker.aligned());
-            } else {
-                telemetry.addData("Object Not Found", "");
+
+
+
+            Triple location = pictureTracker.getTrackableObject(telemetry);
+
+
+
+            if (location != null) {
+                // it could not see anything
+                // spin a little more
+
+                telemetry.addData("OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
+
+                // is it the picture we want?
+                if (desiredPictureName == location.PictureName) {
+
+                    // hooray drive straight towards it
+                    telemetry.addData("DESIRED OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
+                    telemetry.addData("POINTS", "X%f Y%f Z%f ", location.Point.x, location.Point.y, location.Point.z);
+
+                }
+
             }
+
+            // spin some more
+            telemetry.addData("Spinning Nothing found", null);
+
+            sleep(250);
+
+
+
             telemetry.update();
-            sleep(100);
+
         }
 
         camera.deactivate();

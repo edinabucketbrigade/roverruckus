@@ -32,6 +32,8 @@ package org.firstinspires.ftc.teamcode;
 import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
+import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
+import com.edinaftcrobotics.vision.utils.Triple;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -280,10 +282,67 @@ public class BaseAutonomous extends LinearOpMode {
         //TODO write code to knock off gold
         leftDrive.setPower(FORWARD * FAST);
         rightDrive.setPower(FORWARD * FAST);
-        sleep(1000);
+        sleep(500);
         leftDrive.setPower(0.0);
         rightDrive.setPower(0.0);
 
+
+        // spin until we see the rover
+
+        ElapsedTime stopwatch = new ElapsedTime();
+
+        camera.activate();
+        PictureTracker pictureTracker = new PictureTracker(camera,0,0,0);
+
+        pictureTracker.startTracking();
+
+        waitForStart();
+        stopwatch.reset();
+
+        String desiredPictureName = "Blue-Rover";
+
+        /** Start tracking the data sets we care about. */
+        while (opModeIsActive()) {
+
+           Triple location = pictureTracker.getTrackableObject(telemetry);
+
+           if (location != null) {
+                // it found something
+                telemetry.addData("OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
+
+                // is it the picture we want?
+                if (desiredPictureName == location.PictureName) {
+
+                    // hooray drive straight towards it
+                    telemetry.addData("DESIRED OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
+                    telemetry.addData("POINTS", "X%f Y%f Z%f ", location.Point.x, location.Point.y, location.Point.z);
+
+                    if (location.Point.z < 6.0 ) {
+                        rotateRobot(1);
+                    } else if (location.Point.z > 6.4) {
+                        rotateRobot(-1);
+                    } else {
+                        leftDrive.setPower(FORWARD * FAST);
+                        rightDrive.setPower(FORWARD * FAST);
+                        sleep(500);
+                        leftDrive.setPower(0);
+                        rightDrive.setPower(0);
+                    }
+                }
+
+            }
+
+            // spin some more
+            telemetry.addData("Spinning Nothing found", null);
+            rotateRobot(1);
+            sleep(250);
+
+
+            telemetry.update();
+
+        }
+
+        camera.deactivate();
 
 
         //Drive to Depot Straight

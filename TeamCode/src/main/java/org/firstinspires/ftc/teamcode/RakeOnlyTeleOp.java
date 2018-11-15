@@ -29,12 +29,10 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -52,9 +50,9 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
+@TeleOp(name="Rake Only TeleOp", group="Iterative Opmode")
 //@Disabled
-public class BaseTeleOp extends OpMode
+public class RakeOnlyTeleOp extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -75,18 +73,18 @@ public class BaseTeleOp extends OpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        leftDrive  = hardwareMap.get(DcMotor.class, "leftWheel");
-        rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
-        strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
-        upDown = hardwareMap.get(DcMotor.class, "upDown");
+        //leftDrive  = hardwareMap.get(DcMotor.class, "leftWheel");
+        //rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
+        //strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
+        //upDown = hardwareMap.get(DcMotor.class, "upDown");
         rakePivot = hardwareMap.get(DcMotor.class, "rakePivot");
         rakeExtend = hardwareMap.get(CRServo.class, "rakeExtend");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        upDown.setDirection(DcMotor.Direction.REVERSE);
+        //leftDrive.setDirection(DcMotor.Direction.REVERSE);
+        //rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        //upDown.setDirection(DcMotor.Direction.REVERSE);
         rakePivot.setDirection(DcMotor.Direction.FORWARD);
         rakeExtend.setDirection(CRServo.Direction.REVERSE);
 
@@ -115,53 +113,57 @@ public class BaseTeleOp extends OpMode
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
-        double strafePower;
-        double upDownPower;
+//        double leftPower;
+//        double rightPower;
+//        double strafePower;
+//        double upDownPower;
 
         // Choose to drive using either Tank Mode, or POV Mode
         // Comment out the method that's not used.  The default below is POV.
 
         // POV Mode uses left stick to go forward, and right stick to turn.
         // - This uses basic math to combine motions and is easier to drive straight.
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.right_stick_x;
-        double leftRight = 0;
-        double upDownFunk = 0;
+//        double drive = -gamepad1.left_stick_y;
+//        double turn  =  gamepad1.right_stick_x;
+//        double leftRight = 0;
+//        double upDownFunk = 0;
         double rakePivotPower = 0;
         double rakeExtendPower = 0;
 
-        if (gamepad1.dpad_right){
-            leftRight = 1.0;
-        }
-
-        if (gamepad1.dpad_left) {
-            leftRight = -1.0;
-        }
-
-        if (gamepad1.dpad_up) {
-            upDownFunk = 1.0;
-        }
-
-        if (gamepad1.dpad_down) {
-            upDownFunk = -1.0;
-        }
+//        if (gamepad1.dpad_right){
+//            leftRight = 1.0;
+//        }
+//
+//        if (gamepad1.dpad_left) {
+//            leftRight = -1.0;
+//        }
+//
+//        if (gamepad1.dpad_up) {
+//            upDownFunk = 1.0;
+//        }
+//
+//        if (gamepad1.dpad_down) {
+//            upDownFunk = -1.0;
+//        }
 
         if (gamepad1.left_bumper) {
-            rakePivotPower = 1.0;
+            rakeExtendPower = 1.0;
         }
 
         if (gamepad1.right_bumper) {
-            rakePivotPower = -1.0;
+            rakeExtendPower = -1.0;
         }
 
-        rakeExtendPower = gamepad1.left_trigger - gamepad1.right_trigger;
+        double outPower = Range.clip(gamepad1.right_trigger, 0, 0.7);
+        double inPower = Range.clip(gamepad1.left_trigger, 0, 0.7);
 
-        leftPower    = Range.clip(drive + turn, 1.0, -1.0) ;
-        rightPower   = Range.clip(drive - turn, 1.0, -1.0) ;
-        strafePower = leftRight;
-        upDownPower = upDownFunk;
+
+        rakePivotPower = outPower - inPower;
+
+//        leftPower    = Range.clip(drive + turn, 1.0, -1.0) ;
+//        rightPower   = Range.clip(drive - turn, 1.0, -1.0) ;
+//        strafePower = leftRight;
+//        upDownPower = upDownFunk;
 
 
         // Tank Mode uses one stick to control each wheel.
@@ -169,17 +171,17 @@ public class BaseTeleOp extends OpMode
         // leftPower  = -gamepad1.left_stick_y ;
         // rightPower = -gamepad1.right_stick_y ;
 
-        // Send calculated power to wheels
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
-        strafeWheel.setPower(strafePower);
-        upDown.setPower(upDownPower);
+//        // Send calculated power to wheels
+//        leftDrive.setPower(leftPower);
+//        rightDrive.setPower(rightPower);
+//        //strafeWheel.setPower(strafePower);
+//        upDown.setPower(upDownPower);
         rakePivot.setPower(rakePivotPower);
         rakeExtend.setPower(rakeExtendPower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+        //telemetry.addData("Motors", "left (%.2f), right (%.2f)", gamepad1.left_trigger, gamepad1.right_trigger);
     }
 
     /*
