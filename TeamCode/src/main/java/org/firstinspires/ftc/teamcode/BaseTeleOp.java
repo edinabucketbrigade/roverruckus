@@ -158,8 +158,9 @@ public class BaseTeleOp extends OpMode
 
         rakeExtendPower = gamepad1.left_trigger - gamepad1.right_trigger;
 
-        leftPower    = Range.clip(drive + turn, 1.0, -1.0) ;
-        rightPower   = Range.clip(drive - turn, 1.0, -1.0) ;
+        double outPower = Range.clip(gamepad1.right_trigger, 0, 0.7);
+        double inPower = Range.clip(gamepad1.left_trigger, 0, 0.7);
+
         strafePower = leftRight;
         upDownPower = upDownFunk;
 
@@ -170,8 +171,8 @@ public class BaseTeleOp extends OpMode
         // rightPower = -gamepad1.right_stick_y ;
 
         // Send calculated power to wheels
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
+        leftDrive.setPower(drive);
+        rightDrive.setPower(drive);
         strafeWheel.setPower(strafePower);
         upDown.setPower(upDownPower);
         rakePivot.setPower(rakePivotPower);
@@ -179,7 +180,7 @@ public class BaseTeleOp extends OpMode
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+        telemetry.addData("Motors", "left (%.2f), right (%.2f)", drive, drive);
     }
 
     /*
