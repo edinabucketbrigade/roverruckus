@@ -82,10 +82,11 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  */
 
 @Autonomous(name="BaseAutonomous", group="Linear Opmode")
-//@Disabled
 public class BaseAutonomous extends LinearOpMode {
 
     // basic navigation constants
+    public StartPosition startPosition;
+    public GoldPosition goldPosition;
     private double RIGHT = 1.0;
     private double LEFT = -1.0;
     private double FORWARD = -1.0;
@@ -126,11 +127,6 @@ public class BaseAutonomous extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
 
-        Camera camera = new BackPhoneCamera();
-        camera.activate();
-        GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
-
-
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -147,17 +143,13 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setDirection(DcMotor.Direction.REVERSE);
         markerServo.setDirection(CRServo.Direction.FORWARD);
 
-        //InitCamera();
 
-
-       // InitGyro();
-        
         telemetry.addData("Status", "Initialized");
         waitForStart();
 
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
-        upDown.setPower(0.35);
+        upDown.setPower(0.65);
         sleep(2500);
         upDown.setPower(0.0);
         sleep(750);
@@ -165,68 +157,45 @@ public class BaseAutonomous extends LinearOpMode {
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
         strafeWheel.setPower(RIGHT*SLOW);
-        sleep(500);
+        sleep(700);
         strafeWheel.setPower(0.0);
-
-
-        leftDrive.setPower(FORWARD*SLOW);
-        rightDrive.setPower(FORWARD*SLOW);
-        sleep(400);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
-        sleep(250);
-
-
-        strafeWheel.setPower(LEFT*SLOW);
-        sleep(500);
-        strafeWheel.setPower(0.0);
-
-
-        //Identify VuMark
-        telemetry.addData("Auto step:", "Identify VuMark");
-
-        // TODO The output of GetLocation needs to be the angle and the distance
-        //getLocation();
-
-        //Align Robot
-        telemetry.addData("Auto step:", "Align Robot");
-       // rotateRobot(45);
-        //getLocation();
 
         //Drive to minerals
         telemetry.addData("Auto step:", "Drive to minerals");
-//        leftDrive.setPower(1.0);
-//        rightDrive.setPower(1.0);
-//        sleep(600);
-//        leftDrive.setPower(0.0);
-//        rightDrive.setPower(0.0);
+        driveForwardSlow(1200);
+
+        telemetry.addData("Auto step:", "Get into the middle");
+        strafeWheel.setPower(LEFT*SLOW);
+        sleep(700);
+        strafeWheel.setPower(0.0);
 
         //Sample minerals
         telemetry.addData("Auto step:", "Sample minerals");
-        //TODO write code to color test minerals
+        sampleMinerals();
 
-        // Assuming we are aligned to the minerals, we should start strafing left or right until we are aligned
-        // position of the gold mineral will tell us what overall position the gold position is in.
+        //Knock gold off
+        telemetry.addData("Auto step:", "Knock off gold");
+        driveForward(250);
+        telemetry.update();
 
+        //Drive to Depot
+        telemetry.addData("Auto step:", "Drive to depot");
+        driveToDepot(goldPosition);
+        telemetry.update();
 
-        // we need to scan for gold at this point
-        // possible outcomes from scan are?
-            // no object found
-                // what do we do?
-                    // strafe left slowly
-                    // recheck for gold
-                    // if we don't find, then strafe right
-
-            // detected
-                // x, y
-                // x == 300-350 ALIGNED
-                    // if less than 330 go right
-                    // if more than 330 go left
+        //Drop the marker
+        telemetry.addData("Auto step:", "Drop marker");
+        dropMarker();
+        telemetry.update();
 
 
+    }
 
-                // x == 400+ ON THE RIGHT
-                // x < 100 TO THE LEFT
+    private void sampleMinerals() {
+
+        Camera camera = new BackPhoneCamera();
+        camera.activate();
+        GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
 
         boolean MINERAL_ALIGNED = false;
         int ALIGNED_VALUE = 330;
@@ -244,26 +213,40 @@ public class BaseAutonomous extends LinearOpMode {
                     if (MINERAL_ALIGNED == false) {
                         if(mineralTracker.getXPosition() > ALIGNED_VALUE) {
                             strafeWheel.setPower(RIGHT*SLOW);
-                            sleep(100);
+                            sleep(200);
                             strafeWheel.setPower(0);
 
                         } else {
                             strafeWheel.setPower(LEFT*SLOW);
-                            sleep(100);
+                            sleep(200);
                             strafeWheel.setPower(0);
                         }
+                    }
+
+                    switch (NOT_FOUND_COUNT) {
+                        case 0:
+                            goldPosition = GoldPosition.MIDDLE;
+                            break;
+                        case 2:
+                            goldPosition = GoldPosition.RIGHT;
+                            break;
+                        case -2:
+                            goldPosition = GoldPosition.LEFT;
+                            break;
+                        default:
+                            goldPosition = GoldPosition.MIDDLE;
                     }
 
                 } else {
 
                     telemetry.addData("Object Not Found", "");
                     strafeWheel.setPower(search_direction*SLOW);
-                    sleep(100);
+                    sleep(800);
                     strafeWheel.setPower(0);
                     NOT_FOUND_COUNT++;
-                    if (NOT_FOUND_COUNT > 5) {
+                    if (NOT_FOUND_COUNT >= 2) {
                         search_direction = search_direction * -1.0;
-                        NOT_FOUND_COUNT = 0;
+                        NOT_FOUND_COUNT = -2;
                     }
                 }
 
@@ -275,107 +258,152 @@ public class BaseAutonomous extends LinearOpMode {
             }
         }
 
-
-
-        //Knock gold off
-        telemetry.addData("Auto step:", "Knock off gold");
-        //TODO write code to knock off gold
-        leftDrive.setPower(FORWARD * FAST);
-        rightDrive.setPower(FORWARD * FAST);
-        sleep(500);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
-
-
-        // spin until we see the rover
-
-        ElapsedTime stopwatch = new ElapsedTime();
-
-        camera.activate();
-        PictureTracker pictureTracker = new PictureTracker(camera,0,0,0);
-
-        pictureTracker.startTracking();
-
-        waitForStart();
-        stopwatch.reset();
-
-        String desiredPictureName = "Blue-Rover";
-
-        /** Start tracking the data sets we care about. */
-        while (opModeIsActive()) {
-
-           Triple location = pictureTracker.getTrackableObject(telemetry);
-
-           if (location != null) {
-                // it found something
-                telemetry.addData("OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
-
-                // is it the picture we want?
-                if (desiredPictureName == location.PictureName) {
-
-                    // hooray drive straight towards it
-                    telemetry.addData("DESIRED OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
-                    telemetry.addData("POINTS", "X%f Y%f Z%f ", location.Point.x, location.Point.y, location.Point.z);
-
-                    if (location.Point.z < 6.0 ) {
-                        rotateRobot(1);
-                    } else if (location.Point.z > 6.4) {
-                        rotateRobot(-1);
-                    } else {
-                        leftDrive.setPower(FORWARD * FAST);
-                        rightDrive.setPower(FORWARD * FAST);
-                        sleep(500);
-                        leftDrive.setPower(0);
-                        rightDrive.setPower(0);
-                    }
-                }
-
-            }
-
-            // spin some more
-            telemetry.addData("Spinning Nothing found", null);
-            rotateRobot(1);
-            sleep(250);
-
-
-            telemetry.update();
-
-        }
-
-        camera.deactivate();
-
-
-        //Drive to Depot Straight
-        telemetry.addData("Auto step:", "Drive to Depot");
-//        leftDrive.setPower(1.0);
-//        rightDrive.setPower(1.0);
-//        sleep(500);
-//        leftDrive.setPower(0.0);
-//        rightDrive.setPower(0.0);
-
-        //Drive to Depot Crater
-        telemetry.addData("Auto step:", "Drive to Depot");
-//        leftDrive.setPower(1.0);
-//        rightDrive.setPower(1.0);
-//        sleep(500);
-//        leftDrive.setPower(0.0);
-//        rightDrive.setPower(0.0);
-
-        //Drop Marker
-        telemetry.addData("Auto step:", "Drop Marker");
-//        markerServo.setPower(0.5);
-//        sleep(500);
-//        markerServo.setPower(0.0);
-//        markerServo.setPower(-0.5);
-//        sleep(500);
-//        markerServo.setPower(0.0);
-
-        //Drive into crater
-        telemetry.addData("Auto step:", "Drive into crater");
-
-        telemetry.update();
     }
 
+    public void driveToDepot(GoldPosition goldPosition) {
+
+        if (startPosition == StartPosition.BLUE_CRATER || startPosition == StartPosition.RED_CRATER) {
+
+            //back up so you don't hit the minerals
+            telemetry.addData("Auto step:", "Back up");
+            driveBackward(250);
+            telemetry.update();
+
+            if (goldPosition == GoldPosition.MIDDLE) {
+                // rotate 90
+                rotateRobot(90);
+                driveForward(2000);
+                rotateRobot(45);
+                driveForward(2000);
+            }
+
+            if (goldPosition == GoldPosition.RIGHT) {
+                // rotate 90
+                rotateRobot(90);
+                driveForward(1500);
+                rotateRobot(45);
+                driveForward(2000);
+            }
+
+            if (goldPosition == GoldPosition.LEFT) {
+                // rotate 90
+                rotateRobot(90);
+                driveForward(2000);
+                rotateRobot(45);
+                driveForward(2000);
+            }
+        }
+
+        if (startPosition == StartPosition.BLUE_DEPOT || startPosition == StartPosition.RED_DEPOT) {
+            driveForward(500);
+        }
+
+
+    }
+
+    public void driveForward(int milliseconds) {
+        leftDrive.setPower(FORWARD * FAST);
+        rightDrive.setPower(FORWARD * FAST);
+        sleep(milliseconds);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+    }
+
+    public void driveForwardSlow(int milliseconds) {
+        leftDrive.setPower(FORWARD * SLOW);
+        rightDrive.setPower(FORWARD * SLOW);
+        sleep(milliseconds);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+    }
+
+    public void driveBackward(int milliseconds) {
+        leftDrive.setPower(BACKWARD * FAST);
+        rightDrive.setPower(BACKWARD * FAST);
+        sleep(milliseconds);
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+    }
+
+
+    private void dropMarker() {
+        //Drop Marker
+        telemetry.addData("Auto step:", "Drop Marker");
+        markerServo.setPower(0.5);
+        sleep(500);
+        markerServo.setPower(0.0);
+        markerServo.setPower(-0.5);
+        sleep(500);
+        markerServo.setPower(0.0);
+    }
+
+    private void spinAndLook() {
+//        ElapsedTime stopwatch = new ElapsedTime();
+//        camera.deactivate();
+//
+//
+//        camera = new BackPhoneCamera();
+//        camera.activate();
+//
+//        sleep(2000);
+//
+//        PictureTracker pictureTracker = new PictureTracker(camera,0,0,0);
+//
+//        pictureTracker.startTracking();
+//
+//
+//        stopwatch.reset();
+//
+//        String desiredPictureName = "Blue-Rover";
+//
+//        /** Start tracking the data sets we care about. */
+//
+//
+//
+//        while (opModeIsActive()) {
+//
+//            Triple location = pictureTracker.getTrackableObject(telemetry);
+//
+//            if (location != null) {
+//                // it found something
+//                telemetry.addData("OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
+//
+//                // is it the picture we want?
+//                if (desiredPictureName == location.PictureName) {
+//
+//                    // hooray drive straight towards it
+//                    telemetry.addData("DESIRED OBJECT FOUND: ", "%f %f %f", location.Orientation.firstAngle, location.Orientation.secondAngle, location.Orientation.thirdAngle);
+//                    telemetry.addData("POINTS", "X%f Y%f Z%f ", location.Point.x, location.Point.y, location.Point.z);
+//
+//                    if (location.Point.z < 6.0 ) {
+//                        rotateRobot(10);
+//                    } else if (location.Point.z > 6.4) {
+//                        rotateRobot(-10);
+//                    } else {
+//                        leftDrive.setPower(FORWARD * FAST);
+//                        rightDrive.setPower(FORWARD * FAST);
+//                        sleep(1000);
+//                        leftDrive.setPower(0);
+//                        rightDrive.setPower(0);
+//
+//                        dropMarker();
+//                    }
+//                }
+//
+//            }
+//
+//            // spin some more
+//            telemetry.addData("Spinning Nothing found", null);
+//            rotateRobot(1);
+//            sleep(250);
+//
+//
+//            telemetry.update();
+//
+//        }
+//
+//        camera.deactivate();
+    }
 
     private void InitCamera () {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
