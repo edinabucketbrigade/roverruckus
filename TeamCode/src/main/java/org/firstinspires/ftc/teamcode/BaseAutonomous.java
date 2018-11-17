@@ -93,6 +93,7 @@ public class BaseAutonomous extends LinearOpMode {
     private double BACKWARD = 1.0;
     private double FAST = 1.0;
     private double SLOW = 0.5;
+    boolean MINERAL_ALIGNED = false;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -150,14 +151,14 @@ public class BaseAutonomous extends LinearOpMode {
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
         upDown.setPower(0.65);
-        sleep(2500);
+        sleep(3200);
         upDown.setPower(0.0);
-        sleep(750);
+        sleep(250);
 
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
         strafeWheel.setPower(RIGHT*SLOW);
-        sleep(700);
+        sleep(800);
         strafeWheel.setPower(0.0);
 
         //Drive to minerals
@@ -166,7 +167,7 @@ public class BaseAutonomous extends LinearOpMode {
 
         telemetry.addData("Auto step:", "Get into the middle");
         strafeWheel.setPower(LEFT*SLOW);
-        sleep(700);
+        sleep(800);
         strafeWheel.setPower(0.0);
 
         //Sample minerals
@@ -174,20 +175,24 @@ public class BaseAutonomous extends LinearOpMode {
         sampleMinerals();
 
         //Knock gold off
-        telemetry.addData("Auto step:", "Knock off gold");
-        driveForward(250);
-        telemetry.update();
+        if (MINERAL_ALIGNED) {
+            telemetry.addData("Auto step:", "Knock off gold");
+            driveForward(350);
+            telemetry.update();
 
-        //Drive to Depot
-        telemetry.addData("Auto step:", "Drive to depot");
-        driveToDepot(goldPosition);
-        telemetry.update();
+            //Drive to Depot
+            telemetry.addData("Auto step:", "Drive to depot");
+            driveToDepot(goldPosition);
+            telemetry.update();
 
-        //Drop the marker
-        telemetry.addData("Auto step:", "Drop marker");
-        dropMarker();
-        telemetry.update();
-
+            //Drop the marker
+            telemetry.addData("Auto step:", "Drop marker");
+            dropMarker();
+            telemetry.update();
+        } else {
+            telemetry.addData("DONE", "Nothing left to do.");
+            telemetry.update();
+        }
 
     }
 
@@ -197,13 +202,14 @@ public class BaseAutonomous extends LinearOpMode {
         camera.activate();
         GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
 
-        boolean MINERAL_ALIGNED = false;
+
         int ALIGNED_VALUE = 330;
 
         int NOT_FOUND_COUNT = 0;
         double search_direction = RIGHT;
+        int NUMBER_OF_TIMES_SEARCHED = 0;
 
-        while (MINERAL_ALIGNED == false) {
+        while (MINERAL_ALIGNED == false || NUMBER_OF_TIMES_SEARCHED >= 4) {
             try {
                 if (mineralTracker.getGoldMineralLocation()) {
                     telemetry.addData("Aligned: ", mineralTracker.aligned());
@@ -213,12 +219,12 @@ public class BaseAutonomous extends LinearOpMode {
                     if (MINERAL_ALIGNED == false) {
                         if(mineralTracker.getXPosition() > ALIGNED_VALUE) {
                             strafeWheel.setPower(RIGHT*SLOW);
-                            sleep(200);
+                            sleep(100);
                             strafeWheel.setPower(0);
 
                         } else {
                             strafeWheel.setPower(LEFT*SLOW);
-                            sleep(200);
+                            sleep(100);
                             strafeWheel.setPower(0);
                         }
                     }
@@ -241,12 +247,14 @@ public class BaseAutonomous extends LinearOpMode {
 
                     telemetry.addData("Object Not Found", "");
                     strafeWheel.setPower(search_direction*SLOW);
-                    sleep(800);
+                    sleep(850);
                     strafeWheel.setPower(0);
                     NOT_FOUND_COUNT++;
                     if (NOT_FOUND_COUNT >= 2) {
                         search_direction = search_direction * -1.0;
                         NOT_FOUND_COUNT = -2;
+                        NUMBER_OF_TIMES_SEARCHED++;
+
                     }
                 }
 
@@ -266,36 +274,36 @@ public class BaseAutonomous extends LinearOpMode {
 
             //back up so you don't hit the minerals
             telemetry.addData("Auto step:", "Back up");
-            driveBackward(250);
+            driveBackward(350);
             telemetry.update();
 
             if (goldPosition == GoldPosition.MIDDLE) {
                 // rotate 90
-                rotateRobot(90);
-                driveForward(2000);
-                rotateRobot(45);
-                driveForward(2000);
+                rotateRobot(-85);
+                driveForward(1800);
+                rotateRobot(-30);
+                driveForward(2200);
             }
 
             if (goldPosition == GoldPosition.RIGHT) {
                 // rotate 90
-                rotateRobot(90);
-                driveForward(1500);
-                rotateRobot(45);
-                driveForward(2000);
+                rotateRobot(-85);
+                driveForward(1400);
+                rotateRobot(-30);
+                driveForward(2200);
             }
 
             if (goldPosition == GoldPosition.LEFT) {
                 // rotate 90
-                rotateRobot(90);
-                driveForward(2000);
-                rotateRobot(45);
-                driveForward(2000);
+                rotateRobot(-85);
+                driveForward(2200);
+                rotateRobot(-30);
+                driveForward(2200);
             }
         }
 
         if (startPosition == StartPosition.BLUE_DEPOT || startPosition == StartPosition.RED_DEPOT) {
-            driveForward(500);
+            driveForward(600);
         }
 
 
@@ -583,13 +591,13 @@ public class BaseAutonomous extends LinearOpMode {
     private void rotateRobot(int degrees){
         double direction = 1.0;
         double power = 0.25;
-        int secPerDegree = 50;
+        int secPerDegree = 35;
         if (degrees > 0){
             direction = -1.0;
         }
         leftDrive.setPower(direction*power);
         rightDrive.setPower(direction*power*-1.0);
-        sleep(secPerDegree*degrees);
+        sleep(Math.abs(secPerDegree*degrees));
         leftDrive.setPower(0.0);
         rightDrive.setPower(0.0);
     }

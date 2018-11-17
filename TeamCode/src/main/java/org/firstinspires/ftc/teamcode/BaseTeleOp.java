@@ -90,6 +90,13 @@ public class BaseTeleOp extends OpMode
         rakePivot.setDirection(DcMotor.Direction.FORWARD);
         rakeExtend.setDirection(CRServo.Direction.REVERSE);
 
+
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
+        upDown.setPower(0);
+        rakeExtend.setPower(0);
+        rakeExtend.setPower(0);
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -115,8 +122,8 @@ public class BaseTeleOp extends OpMode
     @Override
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
+        double leftPower = 0;
+        double rightPower = 0;
         double strafePower;
         double upDownPower;
 
@@ -125,8 +132,6 @@ public class BaseTeleOp extends OpMode
 
         // POV Mode uses left stick to go forward, and right stick to turn.
         // - This uses basic math to combine motions and is easier to drive straight.
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.right_stick_x;
         double leftRight = 0;
         double upDownFunk = 0;
         double rakePivotPower = 0;
@@ -169,8 +174,11 @@ public class BaseTeleOp extends OpMode
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
         // leftPower  = -gamepad1.left_stick_y ;
         // rightPower = -gamepad1.right_stick_y ;
-        leftPower    = Range.clip(drive + turn, 1.0, -1.0) ;
-        rightPower   = Range.clip(drive - turn, 1.0, -1.0) ;
+
+        double drive = -gamepad1.left_stick_y;
+        double turn  =  -gamepad1.right_stick_x;
+        leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
+        rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
 
         // Send calculated power to wheels
         leftDrive.setPower(leftPower);
@@ -182,7 +190,9 @@ public class BaseTeleOp extends OpMode
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", drive, drive);
+        telemetry.addData("Drive", drive);
+        telemetry.addData("Turn", turn);
+        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
     }
 
     /*
