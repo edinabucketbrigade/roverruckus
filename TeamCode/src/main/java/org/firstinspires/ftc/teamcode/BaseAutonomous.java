@@ -94,6 +94,7 @@ public class BaseAutonomous extends LinearOpMode {
     private double FAST = 1.0;
     private double SLOW = 0.5;
     boolean MINERAL_ALIGNED = false;
+    boolean SAMPLE_MINERALS = true;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -151,7 +152,7 @@ public class BaseAutonomous extends LinearOpMode {
         //Lower Robot
         telemetry.addData("Auto step:", "Lower Robot");
         upDown.setPower(0.65);
-        sleep(3200);
+        sleep(3000);
         upDown.setPower(0.0);
         sleep(250);
 
@@ -170,9 +171,11 @@ public class BaseAutonomous extends LinearOpMode {
         sleep(800);
         strafeWheel.setPower(0.0);
 
-        //Sample minerals
-        telemetry.addData("Auto step:", "Sample minerals");
-        sampleMinerals();
+        if (SAMPLE_MINERALS) {
+            //Sample minerals
+            telemetry.addData("Auto step:", "Sample minerals");
+            sampleMinerals();
+        }
 
         //Knock gold off
         if (MINERAL_ALIGNED) {
@@ -233,9 +236,11 @@ public class BaseAutonomous extends LinearOpMode {
                         case 0:
                             goldPosition = GoldPosition.MIDDLE;
                             break;
+                        case 1:
                         case 2:
                             goldPosition = GoldPosition.RIGHT;
                             break;
+                        case -1:
                         case -2:
                             goldPosition = GoldPosition.LEFT;
                             break;
@@ -243,19 +248,22 @@ public class BaseAutonomous extends LinearOpMode {
                             goldPosition = GoldPosition.MIDDLE;
                     }
 
+
+                    telemetry.addData("Gold Position", goldPosition);
+                    telemetry.update();
+
                 } else {
+                    if (Math.abs(NOT_FOUND_COUNT) >= 2) {
+                        search_direction = search_direction * -1.0;
+                        NUMBER_OF_TIMES_SEARCHED++;
+                    }
 
                     telemetry.addData("Object Not Found", "");
                     strafeWheel.setPower(search_direction*SLOW);
                     sleep(850);
                     strafeWheel.setPower(0);
-                    NOT_FOUND_COUNT++;
-                    if (NOT_FOUND_COUNT >= 2) {
-                        search_direction = search_direction * -1.0;
-                        NOT_FOUND_COUNT = -2;
-                        NUMBER_OF_TIMES_SEARCHED++;
+                    NOT_FOUND_COUNT += 1 * (int)search_direction;
 
-                    }
                 }
 
                 sleep(100);
@@ -279,31 +287,47 @@ public class BaseAutonomous extends LinearOpMode {
 
             if (goldPosition == GoldPosition.MIDDLE) {
                 // rotate 90
-                rotateRobot(-85);
-                driveForward(1800);
-                rotateRobot(-30);
-                driveForward(2200);
-            }
-
-            if (goldPosition == GoldPosition.RIGHT) {
-                // rotate 90
-                rotateRobot(-85);
+                rotateRobot(90);
                 driveForward(1400);
-                rotateRobot(-30);
-                driveForward(2200);
+                rotateRobot(30);
+                driveForward(1400);
             }
 
-            if (goldPosition == GoldPosition.LEFT) {
+            if (goldPosition == GoldPosition.LEFT) {  //LEFT
                 // rotate 90
-                rotateRobot(-85);
-                driveForward(2200);
-                rotateRobot(-30);
-                driveForward(2200);
+                rotateRobot(85);
+                driveForward(1200);
+                rotateRobot(20);
+                driveForward(1400);
+            }
+
+            if (goldPosition == GoldPosition.RIGHT) { //RIGHT ACTUALLY
+                // rotate 90
+                rotateRobot(85);
+                driveForward(1850);
+                rotateRobot(37);
+                driveForward(1500);
             }
         }
 
         if (startPosition == StartPosition.BLUE_DEPOT || startPosition == StartPosition.RED_DEPOT) {
-            driveForward(600);
+
+            if (goldPosition == GoldPosition.MIDDLE) {
+                driveForward(600);
+                rotateRobot(25);
+                driveForward(200);
+            }
+
+            if (goldPosition == GoldPosition.RIGHT) {
+                driveForward(500);
+                rotateRobot(45);
+                driveForward(200);
+            }
+
+            if (goldPosition == GoldPosition.LEFT) {
+                driveForward(450);
+
+            }
         }
 
 
