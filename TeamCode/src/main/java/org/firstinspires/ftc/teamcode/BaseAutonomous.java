@@ -145,6 +145,9 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setDirection(DcMotor.Direction.REVERSE);
         markerServo.setDirection(CRServo.Direction.FORWARD);
 
+        while (!opModeIsActive()&&!isStopRequested()) {
+            telemetry.addData("Status", "Waiting in Init");
+            telemetry.update(); }
 
         telemetry.addData("Status", "Initialized");
         waitForStart();

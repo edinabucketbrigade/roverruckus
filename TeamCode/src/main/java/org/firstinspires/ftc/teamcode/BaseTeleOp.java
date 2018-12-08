@@ -64,6 +64,7 @@ public class BaseTeleOp extends OpMode
     private DcMotor upDown = null;
     private DcMotor rakePivot = null;
     private CRServo rakeExtend = null;
+    private DcMotor Minecraftcito = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -81,6 +82,7 @@ public class BaseTeleOp extends OpMode
         upDown = hardwareMap.get(DcMotor.class, "upDown");
         rakePivot = hardwareMap.get(DcMotor.class, "rakePivot");
         rakeExtend = hardwareMap.get(CRServo.class, "rakeExtend");
+        Minecraftcito = hardwareMap.get(DcMotor.class, "Minecraftcito");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -89,13 +91,14 @@ public class BaseTeleOp extends OpMode
         upDown.setDirection(DcMotor.Direction.REVERSE);
         rakePivot.setDirection(DcMotor.Direction.FORWARD);
         rakeExtend.setDirection(CRServo.Direction.REVERSE);
-
+        Minecraftcito.setDirection(DcMotor.Direction.FORWARD);
 
         leftDrive.setPower(0);
         rightDrive.setPower(0);
         upDown.setPower(0);
         rakeExtend.setPower(0);
         rakeExtend.setPower(0);
+        Minecraftcito.setPower(0);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -136,6 +139,7 @@ public class BaseTeleOp extends OpMode
         double upDownFunk = 0;
         double rakePivotPower = 0;
         double rakeExtendPower = 0;
+        double minecraftPower = 0;
 
         if (gamepad1.dpad_right){
             leftRight = 1.0;
@@ -153,18 +157,22 @@ public class BaseTeleOp extends OpMode
             upDownFunk = -1.0;
         }
 
-        if (gamepad1.left_bumper) {
+        if (gamepad2.left_bumper) {
             rakePivotPower = 1.0;
         }
 
-        if (gamepad1.right_bumper) {
+        if (gamepad2.right_bumper) {
             rakePivotPower = -1.0;
         }
 
-        rakeExtendPower = gamepad1.left_trigger - gamepad1.right_trigger;
+        if (gamepad2.a) {
+            minecraftPower = 1.0;
+        }
 
-        double outPower = Range.clip(gamepad1.right_trigger, 0, 0.7);
-        double inPower = Range.clip(gamepad1.left_trigger, 0, 0.7);
+        rakeExtendPower = gamepad2.left_trigger - gamepad2.right_trigger;
+
+        double outPower = Range.clip(gamepad2.right_trigger, 0, 1);
+        double inPower = Range.clip(gamepad2.left_trigger, 0, 1);
 
         strafePower = leftRight;
         upDownPower = upDownFunk;
@@ -187,6 +195,7 @@ public class BaseTeleOp extends OpMode
         upDown.setPower(upDownPower);
         rakePivot.setPower(rakePivotPower);
         rakeExtend.setPower(rakeExtendPower);
+        Minecraftcito.setPower(minecraftPower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
