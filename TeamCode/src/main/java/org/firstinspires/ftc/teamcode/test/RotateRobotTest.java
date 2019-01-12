@@ -105,9 +105,9 @@ public class RotateRobotTest extends LinearOpMode {
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
     // We will define some constants and conversions here
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
-    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+    private static final float mmPerInch = 25.4f;
+    private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
+    private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
     // Valid choices are:  BACK or FRONT
@@ -143,24 +143,50 @@ public class RotateRobotTest extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized");
         waitForStart();
+        InitGyro();
+
 
         rotateRobot(360);
 
     }
 
-    private void rotateRobot(int degrees){
+    private void rotateRobot(int degrees) {
         double direction = 1.0;
         double power = 0.25;
         int secPerDegree = 40;
-        if (degrees > 0){
+        if (degrees > 0) {
             direction = -1.0;
         }
-        leftDrive.setPower(direction*power);
-        rightDrive.setPower(direction*power*-1.0);
-        sleep(Math.abs(secPerDegree*degrees));
+        leftDrive.setPower(direction * power);
+        rightDrive.setPower(direction * power * -1.0);
+        sleep(Math.abs(secPerDegree * degrees));
         leftDrive.setPower(0.0);
         rightDrive.setPower(0.0);
     }
 
+    private void InitGyro() {
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        imu.initialize(parameters);
+
+        telemetry.addData("Mode", "calibrating...");
+        telemetry.update();
+
+        // make sure the imu gyro is calibrated before continuing.
+        while (!isStopRequested() && !imu.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+        }
+    }
 }
 
