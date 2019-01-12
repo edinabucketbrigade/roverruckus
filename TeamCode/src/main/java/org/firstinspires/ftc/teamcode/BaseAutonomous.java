@@ -138,6 +138,8 @@ public class BaseAutonomous extends LinearOpMode {
         upDown = hardwareMap.get(DcMotor.class, "upDown");
         markerServo = hardwareMap.get(CRServo.class, "markerServo");
 
+        InitGyro();
+
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -187,6 +189,9 @@ public class BaseAutonomous extends LinearOpMode {
             driveForward(350);
             telemetry.update();
 
+            //Check our angle
+            rotateToHeading(0.0);
+
             //Drive to Depot
             telemetry.addData("Auto step:", "Drive to depot");
             driveToDepot(goldPosition);
@@ -202,6 +207,25 @@ public class BaseAutonomous extends LinearOpMode {
             telemetry.update();
         }
 
+    }
+
+    private void rotateToHeading(double desiredHeading){
+        double heading = CheckAngle();
+
+        boolean isAligned = false;
+        while(!isAligned){
+            if (desiredHeading > heading) {
+                rotateRobot(-1);
+            }
+            else{
+                rotateRobot(1);
+            }
+            heading = CheckAngle();
+            if(Math.ceil(heading) == desiredHeading){
+                isAligned = true;
+            }
+            sleep(100);
+        }
     }
 
     private void sampleMinerals() {
@@ -666,13 +690,17 @@ public class BaseAutonomous extends LinearOpMode {
             idle();
         }
 
-        while (true){
+
+
+    }
+    private double CheckAngle () {
+
             Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = (angles.firstAngle+360+0)%360;
             sleep(100);
             telemetry.addData("Angle", Double.toString(heading));
             telemetry.update();
-        }
+            return heading;
 
     }
 }

@@ -8,6 +8,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
@@ -69,7 +73,7 @@ public class ImuTest extends LinearOpMode {
 
         }
 
-     
+
 
         private void InitGyro() {
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -93,6 +97,13 @@ public class ImuTest extends LinearOpMode {
             while (!isStopRequested() && !imu.isGyroCalibrated()) {
                 sleep(50);
                 idle();
+            }
+            while (true){
+                Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                double heading = (angles.firstAngle+360+0)%360;
+                sleep(100);
+                telemetry.addData("Angle", Double.toString(heading));
+                telemetry.update();
             }
         }
 }

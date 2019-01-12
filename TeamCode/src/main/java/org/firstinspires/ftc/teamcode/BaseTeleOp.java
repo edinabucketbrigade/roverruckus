@@ -81,8 +81,6 @@ public class BaseTeleOp extends OpMode
         strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
         upDown = hardwareMap.get(DcMotor.class, "upDown");
         rakePivot = hardwareMap.get(DcMotor.class, "rakePivot");
-        rakeExtend = hardwareMap.get(CRServo.class, "rakeExtend");
-        Minecraftcito = hardwareMap.get(DcMotor.class, "Minecraftcito");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -90,15 +88,11 @@ public class BaseTeleOp extends OpMode
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
         upDown.setDirection(DcMotor.Direction.REVERSE);
         rakePivot.setDirection(DcMotor.Direction.FORWARD);
-        rakeExtend.setDirection(CRServo.Direction.REVERSE);
-        Minecraftcito.setDirection(DcMotor.Direction.REVERSE);
 
         leftDrive.setPower(0);
         rightDrive.setPower(0);
         upDown.setPower(0);
-        rakeExtend.setPower(0);
-        rakeExtend.setPower(0);
-        Minecraftcito.setPower(0);
+        rakePivot.setPower(0);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -138,8 +132,7 @@ public class BaseTeleOp extends OpMode
         double leftRight = 0;
         double upDownFunk = 0;
         double rakePivotPower = 0;
-        double rakeExtendPower = 0;
-        double minecraftPower = 0;
+
 
         if (gamepad1.dpad_right){
             leftRight = 1.0;
@@ -165,15 +158,6 @@ public class BaseTeleOp extends OpMode
             rakePivotPower = -1.0;
         }
 
-        if (gamepad2.a) {
-            minecraftPower = 1.0;
-        }
-
-        rakeExtendPower = gamepad2.left_trigger - gamepad2.right_trigger;
-
-        double outPower = Range.clip(gamepad2.right_trigger, 0, 1);
-        double inPower = Range.clip(gamepad2.left_trigger, 0, 1);
-
         strafePower = leftRight;
         upDownPower = upDownFunk;
 
@@ -194,8 +178,6 @@ public class BaseTeleOp extends OpMode
         strafeWheel.setPower(strafePower);
         upDown.setPower(upDownPower);
         rakePivot.setPower(rakePivotPower);
-        rakeExtend.setPower(rakeExtendPower);
-        Minecraftcito.setPower(minecraftPower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
