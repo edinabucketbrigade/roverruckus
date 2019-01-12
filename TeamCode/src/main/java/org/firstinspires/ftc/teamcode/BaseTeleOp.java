@@ -91,7 +91,7 @@ public class BaseTeleOp extends OpMode
         upDown.setDirection(DcMotor.Direction.REVERSE);
         rakePivot.setDirection(DcMotor.Direction.FORWARD);
         rakeExtend.setDirection(CRServo.Direction.REVERSE);
-        Minecraftcito.setDirection(DcMotor.Direction.FORWARD);
+        Minecraftcito.setDirection(DcMotor.Direction.REVERSE);
 
         leftDrive.setPower(0);
         rightDrive.setPower(0);

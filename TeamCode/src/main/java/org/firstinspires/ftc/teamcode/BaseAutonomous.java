@@ -145,6 +145,7 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setDirection(DcMotor.Direction.REVERSE);
         markerServo.setDirection(CRServo.Direction.FORWARD);
 
+
         while (!opModeIsActive()&&!isStopRequested()) {
             telemetry.addData("Status", "Waiting in Init");
             telemetry.update(); }
@@ -193,7 +194,8 @@ public class BaseAutonomous extends LinearOpMode {
 
             //Drop the marker
             telemetry.addData("Auto step:", "Drop marker");
-            dropMarker();
+            //dropMarker();
+            //driveBackward(200);
             telemetry.update();
         } else {
             telemetry.addData("DONE", "Nothing left to do.");
@@ -319,16 +321,27 @@ public class BaseAutonomous extends LinearOpMode {
                 driveForward(600);
                 rotateRobot(25);
                 driveForward(200);
+                dropMarker();
+                driveBackward(200);
+                rotateRobot(-25);
+                driveBackward(600);
             }
 
             if (goldPosition == GoldPosition.RIGHT) {
                 driveForward(500);
                 rotateRobot(45);
-                driveForward(200);
+                driveForward(400);
+                dropMarker();
+                driveBackward(400);
+                rotateRobot(-45);
+                driveBackward(500);
             }
+
 
             if (goldPosition == GoldPosition.LEFT) {
                 driveForward(450);
+                dropMarker();
+                driveBackward(450);
 
             }
         }
