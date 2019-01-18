@@ -212,14 +212,20 @@ public class BaseAutonomous extends LinearOpMode {
     private void rotateToHeading(double desiredHeading){
         double heading = CheckAngle();
 
+
+
         boolean isAligned = false;
         while(!isAligned){
-            if (desiredHeading > heading) {
-                rotateRobot(-1);
+            double adjustment = 0;
+
+            if(Math.abs(desiredHeading - heading) > 180.0){
+                adjustment = 360 - Math.abs(desiredHeading - heading);
+            } else {
+                adjustment = desiredHeading - heading;
             }
-            else{
-                rotateRobot(1);
-            }
+
+            rotateRobot((int)adjustment);
+
             heading = CheckAngle();
             if(Math.ceil(heading) == desiredHeading){
                 isAligned = true;
@@ -316,25 +322,25 @@ public class BaseAutonomous extends LinearOpMode {
 
             if (goldPosition == GoldPosition.MIDDLE) {
                 // rotate 90
-                rotateRobot(90);
+                rotateToHeading(90);
                 driveForward(1400);
-                rotateRobot(30);
+                rotateToHeading(30);
                 driveForward(1400);
             }
 
             if (goldPosition == GoldPosition.LEFT) {  //LEFT
                 // rotate 90
-                rotateRobot(85);
+                rotateToHeading(85);
                 driveForward(1200);
-                rotateRobot(20);
+                rotateToHeading(20);
                 driveForward(1400);
             }
 
             if (goldPosition == GoldPosition.RIGHT) { //RIGHT ACTUALLY
                 // rotate 90
-                rotateRobot(85);
+                rotateToHeading(85);
                 driveForward(1850);
-                rotateRobot(37);
+                rotateToHeading(37);
                 driveForward(1500);
             }
         }

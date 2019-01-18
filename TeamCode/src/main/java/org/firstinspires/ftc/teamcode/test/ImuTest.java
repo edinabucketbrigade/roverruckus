@@ -98,13 +98,21 @@ public class ImuTest extends LinearOpMode {
                 sleep(50);
                 idle();
             }
+
             while (true){
-                Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                double heading = (angles.firstAngle+360+0)%360;
-                sleep(100);
-                telemetry.addData("Angle", Double.toString(heading));
-                telemetry.update();
+                CheckAngle();
             }
         }
+
+    private double CheckAngle () {
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double heading = (angles.firstAngle+360+0)%360;
+        sleep(100);
+        telemetry.addData("Angle", Double.toString(heading));
+        telemetry.update();
+        return heading;
+
+    }
 }
 
