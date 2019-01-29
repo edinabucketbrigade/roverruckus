@@ -199,20 +199,37 @@ public class BaseAutonomous extends LinearOpMode {
 
             //Drop the marker
             telemetry.addData("Auto step:", "Drop marker");
-            //dropMarker();
-            //driveBackward(200);
+            dropMarker();
+            driveBackward(200);
             telemetry.update();
+
+            //Drive to Crater
+            telemetry.addData("Auto step:", "Drive to Crater");
+            driveToCrater();
+
         } else {
             telemetry.addData("DONE", "Nothing left to do.");
             telemetry.update();
         }
 
     }
+    private void driveToCrater (){
+
+    }
+
+    private double CheckAngle () {
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double heading = (angles.firstAngle+360+0)%360;
+        sleep(50);
+        telemetry.addData("Angle", Double.toString(heading));
+        telemetry.update();
+        return heading;
+
+    }
 
     private void rotateToHeading(double desiredHeading){
         double heading = CheckAngle();
-
-
 
         boolean isAligned = false;
         while(!isAligned){
@@ -224,13 +241,17 @@ public class BaseAutonomous extends LinearOpMode {
                 adjustment = desiredHeading - heading;
             }
 
+            telemetry.addData("adjustment", Double.toString(adjustment));
             rotateRobot((int)adjustment);
 
             heading = CheckAngle();
+            if (Math.ceil(heading)== 360) {
+                heading = 0.0;
+            }
             if(Math.ceil(heading) == desiredHeading){
                 isAligned = true;
             }
-            sleep(100);
+            sleep(50);
         }
     }
 
@@ -247,7 +268,11 @@ public class BaseAutonomous extends LinearOpMode {
         double search_direction = RIGHT;
         int NUMBER_OF_TIMES_SEARCHED = 0;
 
+        rotateToHeading(0.0);
+
         while (MINERAL_ALIGNED == false || NUMBER_OF_TIMES_SEARCHED >= 4) {
+
+
             try {
                 if (mineralTracker.getGoldMineralLocation()) {
                     telemetry.addData("Aligned: ", mineralTracker.aligned());
@@ -293,6 +318,8 @@ public class BaseAutonomous extends LinearOpMode {
                         NUMBER_OF_TIMES_SEARCHED++;
                     }
 
+                    rotateToHeading(0.0);
+
                     telemetry.addData("Object Not Found", "");
                     strafeWheel.setPower(search_direction*SLOW);
                     sleep(850);
@@ -324,23 +351,23 @@ public class BaseAutonomous extends LinearOpMode {
                 // rotate 90
                 rotateToHeading(90);
                 driveForward(1400);
-                rotateToHeading(30);
+                rotateToHeading(135);
                 driveForward(1400);
             }
 
             if (goldPosition == GoldPosition.LEFT) {  //LEFT
                 // rotate 90
-                rotateToHeading(85);
-                driveForward(1200);
-                rotateToHeading(20);
+                rotateToHeading(90);
+                driveForward(1100);
+                rotateToHeading(135);
                 driveForward(1400);
             }
 
             if (goldPosition == GoldPosition.RIGHT) { //RIGHT ACTUALLY
                 // rotate 90
-                rotateToHeading(85);
+                rotateToHeading(90);
                 driveForward(1850);
-                rotateToHeading(37);
+                rotateToHeading(135);
                 driveForward(1500);
             }
         }
@@ -349,29 +376,29 @@ public class BaseAutonomous extends LinearOpMode {
 
             if (goldPosition == GoldPosition.MIDDLE) {
                 driveForward(600);
-                rotateRobot(25);
+                rotateToHeading(25);
                 driveForward(200);
                 dropMarker();
                 driveBackward(200);
-                rotateRobot(-25);
+                rotateToHeading(0);
                 driveBackward(600);
             }
 
             if (goldPosition == GoldPosition.RIGHT) {
-                driveForward(500);
-                rotateRobot(45);
+                driveForward(600);
+                rotateToHeading(45);
                 driveForward(400);
                 dropMarker();
                 driveBackward(400);
-                rotateRobot(-45);
-                driveBackward(500);
+                rotateToHeading(0);
+                driveBackward(600);
             }
 
 
             if (goldPosition == GoldPosition.LEFT) {
-                driveForward(450);
+                driveForward(550);
                 dropMarker();
-                driveBackward(450);
+                driveBackward(550);
 
             }
         }
@@ -699,15 +726,6 @@ public class BaseAutonomous extends LinearOpMode {
 
 
     }
-    private double CheckAngle () {
 
-            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double heading = (angles.firstAngle+360+0)%360;
-            sleep(100);
-            telemetry.addData("Angle", Double.toString(heading));
-            telemetry.update();
-            return heading;
-
-    }
 }
 
