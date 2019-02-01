@@ -102,6 +102,7 @@ public class BaseAutonomous extends LinearOpMode {
     private DcMotor rightDrive = null;
     private DcMotor strafeWheel = null;
     private DcMotor upDown = null;
+    private DcMotor rakePivot = null;
     private CRServo markerServo = null;
 
     private BNO055IMU imu;
@@ -136,6 +137,7 @@ public class BaseAutonomous extends LinearOpMode {
         rightDrive = hardwareMap.get(DcMotor.class, "rightWheel");
         strafeWheel = hardwareMap.get(DcMotor.class, "strafeWheel");
         upDown = hardwareMap.get(DcMotor.class, "upDown");
+        rakePivot = hardwareMap.get(DcMotor.class, "rakePivot");
         markerServo = hardwareMap.get(CRServo.class, "markerServo");
 
         InitGyro();
@@ -146,7 +148,7 @@ public class BaseAutonomous extends LinearOpMode {
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         upDown.setDirection(DcMotor.Direction.REVERSE);
         markerServo.setDirection(CRServo.Direction.FORWARD);
-
+        rakePivot.setDirection(DcMotor.Direction.FORWARD);
 
         while (!opModeIsActive()&&!isStopRequested()) {
             telemetry.addData("Status", "Waiting in Init");
@@ -162,10 +164,13 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setPower(0.0);
         sleep(250);
 
+
+        rotateRobot(30);
+
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
         strafeWheel.setPower(RIGHT*SLOW);
-        sleep(800);
+        sleep(600);
         strafeWheel.setPower(0.0);
 
         //Drive to minerals
@@ -248,7 +253,7 @@ public class BaseAutonomous extends LinearOpMode {
             if (Math.ceil(heading)== 360) {
                 heading = 0.0;
             }
-            if(Math.ceil(heading) == desiredHeading){
+            if(Math.abs((int)heading - (int)desiredHeading) < 3){
                 isAligned = true;
             }
             sleep(50);
@@ -385,13 +390,54 @@ public class BaseAutonomous extends LinearOpMode {
             }
 
             if (goldPosition == GoldPosition.RIGHT) {
+                strafeWheel.setPower(RIGHT*FAST);
+                sleep(100);
+                strafeWheel.setPower(0);
+
+
                 driveForward(600);
                 rotateToHeading(45);
                 driveForward(400);
                 dropMarker();
-                driveBackward(400);
+                driveBackward(800);
                 rotateToHeading(0);
-                driveBackward(600);
+                driveBackward(700);
+
+                rotateToHeading(0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(25);
+
+                rakePivot.setPower(1.0);
+                sleep(1000);
+                rakePivot.setPower(0);
             }
 
 
