@@ -164,13 +164,19 @@ public class BaseAutonomous extends LinearOpMode {
         upDown.setPower(0.0);
         sleep(250);
 
+        driveForward(50);
 
-        rotateRobot(30);
+//        strafeWheel.setPower(RIGHT*SLOW);
+//        sleep(100);
+//        strafeWheel.setPower(0.0);
+//
+//
+//        rotateRobot(30);
 
         //Detach from bracket
         telemetry.addData("Auto step:", "Detach from bracket");
         strafeWheel.setPower(RIGHT*SLOW);
-        sleep(600);
+        sleep(1200);
         strafeWheel.setPower(0.0);
 
         //Drive to minerals
@@ -229,7 +235,7 @@ public class BaseAutonomous extends LinearOpMode {
         sleep(50);
         telemetry.addData("Angle", Double.toString(heading));
         telemetry.update();
-        return heading;
+        return Math.round(heading);
 
     }
 
@@ -240,7 +246,7 @@ public class BaseAutonomous extends LinearOpMode {
         while(!isAligned){
             double adjustment = 0;
 
-            if(Math.abs(desiredHeading - heading) > 180.0){
+            if(Math.abs(desiredHeading - heading) > 179.0){
                 adjustment = 360 - Math.abs(desiredHeading - heading);
             } else {
                 adjustment = desiredHeading - heading;
@@ -249,8 +255,13 @@ public class BaseAutonomous extends LinearOpMode {
             telemetry.addData("adjustment", Double.toString(adjustment));
             rotateRobot((int)adjustment);
 
+            if (Math.abs(adjustment) < 2) {
+                isAligned = true;
+                break;
+            }
+
             heading = CheckAngle();
-            if (Math.ceil(heading)== 360) {
+            if (Math.round(heading)== 360) {
                 heading = 0.0;
             }
             if(Math.abs((int)heading - (int)desiredHeading) < 3){
@@ -386,7 +397,35 @@ public class BaseAutonomous extends LinearOpMode {
                 dropMarker();
                 driveBackward(200);
                 rotateToHeading(0);
-                driveBackward(600);
+                driveBackward(900);
+
+                rotateToHeading(0);
+
+
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(25);
+
+                rakePivot.setPower(1.0);
+                sleep(1000);
+                rakePivot.setPower(0);
+
+
             }
 
             if (goldPosition == GoldPosition.RIGHT) {
@@ -442,13 +481,35 @@ public class BaseAutonomous extends LinearOpMode {
 
 
             if (goldPosition == GoldPosition.LEFT) {
-                driveForward(550);
+
+                driveForward(600);
+                rotateToHeading(-45);
+                driveForward(400);
                 dropMarker();
-                driveBackward(550);
+                driveBackward(400);
+                rotateToHeading(0);
+                driveBackward(700);
+
+                rotateToHeading(0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(0.0);
+
+                strafeWheel.setPower(LEFT*FAST);
+                sleep(500);
+                strafeWheel.setPower(0);
+
+                rotateToHeading(25);
+
+                rakePivot.setPower(1.0);
+                sleep(1000);
+                rakePivot.setPower(0);
 
             }
         }
-
 
     }
 
